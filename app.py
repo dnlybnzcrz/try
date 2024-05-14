@@ -4,13 +4,14 @@ from keras.models import load_model
 import numpy as np
 from PIL import Image, ImageOps
 
-@st.cache_resource
-
+# Load the model
+@st.cache
 def load_model():
-  model=tf.keras.models.load_model('rps_classifier.h5')
-  return model
+    model = tf.keras.models.load_model('rps_classifier.h5')
+    return model
 
-model = load_model()
+# Rename function to avoid conflict with the model object
+loaded_model = load_model()
 classes = {0: 'paper', 1: 'rock', 2: 'scissors'}
 
 st.write("# Rock-Paper-Scissors Classifier")
@@ -37,7 +38,7 @@ def import_and_predict(image_data, model):
     image_reshape = np.reshape(image, (1, 256, 256, 3))
     prediction = model.predict(image_reshape)
     return prediction
-"\n"
+
 if file is None:
     st.text("Please upload an image file")
 else:
@@ -45,16 +46,11 @@ else:
         image = Image.open(file) if file else None
         if image:
             st.image(image, use_column_width=True)
-            prediction = import_and_predict(image, model)
-            class_names = classes
-            string = f"It is a {class_names[np.argmax(prediction)]}!"
+            prediction = import_and_predict(image, loaded_model)  # Use the loaded model
+            string = f"It is a {classes[np.argmax(prediction)]}!"  # Use `classes` directly
             st.success(string)
         else:
             st.text("Invalid file. Please upload a valid image file.")
     except Exception as e:
         st.text("Error occurred while processing the image.")
         st.text(str(e))
-        
-        
-
-
